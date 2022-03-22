@@ -1,4 +1,5 @@
 from configparser import NoOptionError
+from datetime import datetime
 from models.models import Data, engine, Sensor
 from sqlalchemy.orm import Session
 import requests
@@ -15,13 +16,14 @@ class SergekParser:
         return sensors
 
     def parse(self):
+        print('begin', datetime.now())
         sensors = self.request()
         for sensor in sensors:
             self.save_in_db(sensor)
 
     def save_in_db(self, sensor_data):
         if self.is_sensor_exist(sensor_data['sensor_id']):
-            print('exits')
+
             sensor = self.get_sensor(sensor_data['sensor_id'])
             d = sensor_data['history'][0]['data']
             data = Data(
@@ -38,7 +40,6 @@ class SergekParser:
             session.commit()
 
         else:
-            print('exist')
             self.create_sensor(sensor_data)
             self.save_in_db(sensor_data)
             
